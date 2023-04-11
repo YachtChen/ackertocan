@@ -21,6 +21,7 @@ setup(
     entry_points={
         'console_scripts': [
                 'talker1 = ackertocan.Ackerman:main',
+                'talker2 = ackertocan.conversion:main',
                 'listener1 = ackertocan.conversion:main',
                 'listener2 = ackertocan.CAN:main',
         ],

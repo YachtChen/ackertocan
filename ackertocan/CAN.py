@@ -15,22 +15,22 @@
 import rclpy
 from rclpy.node import Node
 
-from std_msgs.msg import String
-
+from moa_msgs.msg import CAN
 
 class MinimalSubscriber(Node):
 
     def __init__(self):
         super().__init__('minimal_subscriber')
         self.subscription = self.create_subscription(
-            String,
-            'topic',
+            CAN,
+            'pub_raw_can',
             self.listener_callback,
             10)
         self.subscription  # prevent unused variable warning
 
     def listener_callback(self, msg):
-        self.get_logger().info('I heard: "%s"' % msg.data)
+        my_string = ', '.join(str(x) for x in msg.data)
+        self.get_logger().info(my_string)
 
 
 def main(args=None):

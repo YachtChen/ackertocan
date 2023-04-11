@@ -15,22 +15,34 @@
 import rclpy
 from rclpy.node import Node
 
-from std_msgs.msg import String
-
+from ackermann_msg.msg import AckermannDrive  
+from moa_msgs.msg import CAN
 
 class MinimalSubscriber(Node):
 
     def __init__(self):
         super().__init__('minimal_subscriber')
         self.subscription = self.create_subscription(
-            String,
-            'topic',
+            AckermannDrive,
+            'cmd_vel',
             self.listener_callback,
             10)
         self.subscription  # prevent unused variable warning
+        self.publisher_ = self.create_publisher(CAN, 'pub_raw_can', 10)
+        timer_period = 0.5  # seconds
+        self.timer = self.create_timer(timer_period, self.timer_callback)
 
     def listener_callback(self, msg):
-        self.get_logger().info('I heard: "%s"' % msg.data)
+        self.get_logger().info('I heard: "%s"' % msg.speed)
+    
+    def timer_callback(self):
+        msgB = CAN()
+        msgB.id = 1
+        msgB.is_rtr = False
+        msgB.data = [1,1,1,1,1,1,1,1]
+        my_string = ', '.join(str(x) for x in msgB.data)
+        self.publisher_.publish(msgB)
+        self.get_logger().info(my_string)
 
 
 def main(args=None):
@@ -39,6 +51,7 @@ def main(args=None):
     minimal_subscriber = MinimalSubscriber()
 
     rclpy.spin(minimal_subscriber)
+    rclpy.spin(minimal_publisher)
 
     # Destroy the node explicitly
     # (optional - otherwise it will be done automatically

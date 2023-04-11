@@ -10,8 +10,12 @@
   <buildtool_depend>ament_python</buildtool_depend>
   <build_depend>std_msgs</build_depend>
   <build_depend>rclpy</build_depend>
+  <build_depend>ackermann_msg</build_depend>
+  <build_depend>moa_msgs</build_depend>
   <exec_depend>rclpy</exec_depend>
   <exec_depend>std_msgs</exec_depend>
+  <exec_depend>ackermann_msg</exec_depend>
+  <exec_depend>moa_msgs</exec_depend>
 
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>
