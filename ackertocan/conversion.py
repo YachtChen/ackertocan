@@ -12,19 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#This the main node that encode ackermann drive message to can message
+
 import rclpy
 from rclpy.node import Node
-
-from ackermann_msg.msg import AckermannDrive  
+from ackermann_msg.msg import AckermannDrive
+from ackermann_msg.msg import AckermannDriveStamped
 from moa_msgs.msg import CAN
+from moa_msgs.msg import CANStamped
 
 class conversion(Node):
 
     def __init__(self):
         super().__init__('converter')
-        self.publisher_ = self.create_publisher(CAN, 'pub_raw_can', 10)
+        self.publisher_ = self.create_publisher(CANStamped, 'pub_raw_can', 10)
         self.subscription = self.create_subscription(
-            AckermannDrive,
+            AckermannDriveStamped,
             'cmd_vel',
             self.listener_callback,
             10)
@@ -33,22 +36,26 @@ class conversion(Node):
         
 
     def listener_callback(self, msg):
-        self.get_logger().info('I heard: "%s"' % msg.speed)
+        #Show that it receives drive message
+        self.get_logger().info('I heard: "%s"' % msg.drive.speed)
         
-        #Initiate data
-        msgB = CAN()
-        msgB.id = self.i
-        msgB.is_rtr = False
-        msgB.data = [0,0,0,0,0,0,0,0]
+        #Initiate vairables
+        msgB = CANStamped()
+        msgB.header.frame_id = 'can_link'
+        msgB.can.id = self.i
+        msgB.can.is_rtr = False
+        msgB.can.data = [0,0,0,0,0,0,0,0]
         
-        msgB.data[0] = round(msg.steering_angle*182.665+127.5) #Scale with 182.665 with offset of 127.5
-        msgB.data[1] = round(msg.steering_angle_velocity*14.61) #scale with factor of 14.61
-        msgB.data[2] = round(msg.speed*6.1151)#scale with factor of 6.1151
-        msgB.data[3] = round(msg.acceleration*12.75) #scale with factor 12.75
-        msgB.data[4] = round(msg.jerk*20.4) #scale with factor 20.4
-        
-        my_string = ', '.join(str(x) for x in msgB.data)
+        #Use scaling and rounding method to encode
+        msgB.can.data[0] = round(msg.drive.steering_angle*182.665+127.5) #Scale with 182.665 with offset of 127.5
+        msgB.can.data[1] = round(msg.drive.steering_angle_velocity*14.61) #scale with factor of 14.61
+        msgB.can.data[2] = round(msg.drive.speed*6.1151)#scale with factor of 6.1151
+        msgB.can.data[3] = round(msg.drive.acceleration*12.75) #scale with factor 12.75
+        msgB.can.data[4] = round(msg.drive.jerk*20.4) #scale with factor 20.4
         self.publisher_.publish(msgB)
+        
+        #Print the array in the log
+        my_string = ', '.join(str(x) for x in msgB.can.data)
         self.get_logger().info(my_string)
         self.i += 1
         

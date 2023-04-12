@@ -12,29 +12,33 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#This node is a listener, receive raw CAN message and can be used to compare encoding precision
+
 import rclpy
 from rclpy.node import Node
-
 from moa_msgs.msg import CAN
+from moa_msgs.msg import CANStamped
 
-class MinimalSubscriber(Node):
+
+class CanListener(Node):
 
     def __init__(self):
-        super().__init__('minimal_subscriber')
+        super().__init__('CAN_Listener')
         self.subscription = self.create_subscription(
-            CAN,
+            CANStamped,
             'pub_raw_can',
             self.listener_callback,
             10)
         self.subscription  # prevent unused variable warning
 
     def listener_callback(self, msg):
+        #Print the received and decoded message
         my_list = [0, 0, 0, 0, 0]
-        my_list[0] = (msg.data[0]-127.5)/182.665
-        my_list[1] = msg.data[1]/14.61
-        my_list[2] = msg.data[2]/6.1151
-        my_list[3] = msg.data[3]/12.75
-        my_list[4] = msg.data[4]/20.4
+        my_list[0] = (msg.can.data[0]-127.5)/182.665
+        my_list[1] = msg.can.data[1]/14.61
+        my_list[2] = msg.can.data[2]/6.1151
+        my_list[3] = msg.can.data[3]/12.75
+        my_list[4] = msg.can.data[4]/20.4
         my_string = ', '.join(str(x) for x in my_list)
         self.get_logger().info(my_string)
 
@@ -42,14 +46,14 @@ class MinimalSubscriber(Node):
 def main(args=None):
     rclpy.init(args=args)
 
-    minimal_subscriber = MinimalSubscriber()
+    CAN_listener = CanListener()
 
-    rclpy.spin(minimal_subscriber)
+    rclpy.spin(CAN_listener)
 
     # Destroy the node explicitly
     # (optional - otherwise it will be done automatically
     # when the garbage collector destroys the node object)
-    minimal_subscriber.destroy_node()
+    CAN_listener.destroy_node()
     rclpy.shutdown()
 
 

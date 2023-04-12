@@ -13,31 +13,39 @@
 # limitations under the License.
 
 
+#This node simulates the sensors on Ackermann drive, which publish messages with random values. 
+
+
 import rclpy
 import random
 import numpy 
 from rclpy.node import Node
 from ackermann_msg.msg import AckermannDrive  
+from ackermann_msg.msg import AckermannDriveStamped  
 
 
 class AckerPublisher(Node):
 
     def __init__(self):
         super().__init__('Acker_publisher')
-        self.publisher_ = self.create_publisher(AckermannDrive, 'cmd_vel', 10)
-        timer_period = 2  # seconds
+        self.publisher_ = self.create_publisher(AckermannDriveStamped, 'cmd_vel', 10)
+        timer_period = 2  # send message every 2 seconds
         self.timer = self.create_timer(timer_period, self.timer_callback)
 
     def timer_callback(self):
-        msg = AckermannDrive()
+        #Set the message
+        msg = AckermannDriveStamped()
+        msg.header.frame_id = 'acker_link'
+        
         #Assumptions made on values
-        msg.steering_angle = random.uniform(-0.698, 0.698) #Maximum +-0.698 radians
-        msg.steering_angle_velocity = random.uniform(0.0,17.4533)#0 to 17.4533 radians/second
-        msg.speed = random.uniform(0, 41.7) #0-41.7m/s
-        msg.acceleration = random.uniform(0, 20)#0-20 m/s^2
-        msg.jerk = random.uniform(0, 12.5) #0-12.5 m/s^2
+        msg.drive.steering_angle = random.uniform(-0.698, 0.698) #+-0.698 radians
+        msg.drive.steering_angle_velocity = random.uniform(0.0,17.4533)#0 to 17.4533 radians/second
+        msg.drive.speed = random.uniform(0, 41.7) #0-41.7m/s
+        msg.drive.acceleration = random.uniform(0, 20)#0-20 m/s^2
+        msg.drive.jerk = random.uniform(0, 12.5) #0-12.5 m/s^2
         self.publisher_.publish(msg)
-        self.get_logger().info('Publishing: sa:%f sav:%f speed:%f acce:%f jerk:%f' % (msg.steering_angle,msg.steering_angle_velocity,msg.speed,msg.acceleration,msg.jerk))
+        #Print the message
+        self.get_logger().info('Publishing: sa:%f sav:%f speed:%f acce:%f jerk:%f' % (msg.drive.steering_angle,msg.drive.steering_angle_velocity,msg.drive.speed,msg.drive.acceleration,msg.drive.jerk))
 
 def main(args=None):
     rclpy.init(args=args)
