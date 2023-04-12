@@ -29,7 +29,13 @@ class MinimalSubscriber(Node):
         self.subscription  # prevent unused variable warning
 
     def listener_callback(self, msg):
-        my_string = ', '.join(str(x) for x in msg.data)
+        my_list = [0, 0, 0, 0, 0]
+        my_list[0] = (msg.data[0]-127.5)/182.665
+        my_list[1] = msg.data[1]/14.61
+        my_list[2] = msg.data[2]/6.1151
+        my_list[3] = msg.data[3]/12.75
+        my_list[4] = msg.data[4]/20.4
+        my_string = ', '.join(str(x) for x in my_list)
         self.get_logger().info(my_string)
 
 

@@ -20,10 +20,9 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-                'talker1 = ackertocan.Ackerman:main',
-                'talker2 = ackertocan.conversion:main',
-                'listener1 = ackertocan.conversion:main',
-                'listener2 = ackertocan.CAN:main',
+                'ackerpublisher = ackertocan.Ackerman:main',
+                'converter = ackertocan.conversion:main',
+                'canlistener = ackertocan.CAN:main',
         ],
     },
 )
